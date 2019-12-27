@@ -73,7 +73,7 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
-    implementation project(path: ':libposdigital-1.4.0-2-release')  // From node_modules
+    implementation fileTree(dir: 'libposdigital-1.4.0-2-release',include:['*.aar'])// From node_modules
 }
 
 def configureReactNativePom(def pom) {
