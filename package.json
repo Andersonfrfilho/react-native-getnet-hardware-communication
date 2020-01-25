@@ -1,11 +1,17 @@
 {
   "name": "react-native-getnet-hardware-communication",
   "title": "React Native Getnet Hardware Communication",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Get-Net Machine Hardware Communication Module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
+    }
   },
   "repository": {
     "type": "git",
@@ -27,7 +33,17 @@
     "react-native": ">=0.59.0-rc.0 <1.0.x"
   },
   "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "commitizen": "^4.0.3",
+    "cz-conventional-changelog": "3.0.2",
+    "husky": "^4.2.1",
     "react": "^16.8.3",
     "react-native": "^0.59.10"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
