@@ -71,6 +71,44 @@ const myFunction = async () => {
   //responseMethod;
   const responseService = await checkServiceMethod();
   ///////////////////////////////////
+  //print view
+  async function print() {
+    const data = await ComunicationHardwareGetNet.printView({
+      textPrint: [
+        {
+          text: `Anderson`,
+          position: "bitmap",
+          fontSize: "small",
+          setFontGray: 5
+        },
+        {
+          text: `ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCE56789`,
+          position: "center",
+          setFontGray: 5,
+          fontSize: "small"
+        },
+        {
+          text: `ABCDEFGHIJKLMNOPQRSTUVWXYZ012349ABCEGHIJKLMNOPQRSTUVWXYZ123456789`,
+          position: "center",
+          setFontGray: 5,
+          fontSize: "small"
+        },
+        {
+          text: `ABCDEFGHIJKLMNOPYZ123456789`,
+          position: "center",
+          setFontGray: 5,
+          fontSize: "small"
+        },
+        {
+          text: `ABCDEFGHIJKLMNOPQRSTUABCEGHIJKLMNOPQRSTUVWXYZ123456789`,
+          position: "center",
+          setFontGray: 5,
+          fontSize: "small"
+        }
+      ]
+    });
+    console.tron.log(data);
+  }
   //printMethod;
   const responsePrint = await printMethod({
     // 1 - 5;

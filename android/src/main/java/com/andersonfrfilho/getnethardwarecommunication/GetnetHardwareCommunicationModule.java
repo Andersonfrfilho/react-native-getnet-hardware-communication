@@ -65,95 +65,134 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
     @ReactMethod
     public void printMethod(ReadableMap data, final Promise promise) {
         try {
-            PosDigital.getInstance().getPrinter().init();
-            PosDigital.getInstance().getPrinter().setGray(data.getInt("setFontGray"));
-            if (data.getString("fontSize").toLowerCase().equals("medium")) {
-                PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
-            } else if (data.getString("fontSize").toLowerCase().equals("large")) {
-                PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
-            } else {
-                PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-            }
-            for (int i = 0; i < data.getArray("textPrint").size(); i++) {
-                if (data.getArray("textPrint").getMap(i).getString("position").toLowerCase().contains("bitmap-")) {
-                    Bitmap logoImg = BitmapFactory
-                            .decodeFile(data.getArray("textPrint").getMap(i).getString("text").toLowerCase());
-                    PosDigital.getInstance().getPrinter().addImageBitmap(
-                            Integer.parseInt(data.getArray("textPrint").getMap(i).getString("text").toLowerCase().substring(7, 8)),
-                            logoImg);
-                } else if (data.getArray("textPrint").getMap(i).getString("position").toLowerCase().equals("right")) {
-                    if (data.getString("fontSize").toLowerCase().equals("medium")
-                            || data.getString("fontSize").toLowerCase().equals("large")) {
-                        if (data.getArray("textPrint").getMap(i).getString("text").length() > 32) {
-                            Integer rest = data.getArray("textPrint").getMap(i).getString("text").length() % 32;
-                            for (int j = 0; j < rest; j++) {
-                                PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,
-                                        data.getArray("textPrint").getMap(i).getString("text").substring(j * 48, (j + 1) * 48));
-                            }
+            for (int i = 0; i < data.getArray("textPrint").size(); i++){
+                if(data.getArray("textPrint").getMap(i).getString("position").equals("bitmap")){
 
+                }else if(data.getArray("textPrint").getMap(i).getString("position").toLowerCase().equals("left")){
+                    if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("small")){
+                        int sizePhrase=48;
+                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
+                        }else{
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
                         }
-                        PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,
-                                data.getArray("textPrint").getMap(i).getString("text"));
-                    } else if (data.getString("fontSize").toLowerCase().equals("small")) {
-                        if (data.getArray("textPrint").getMap(i).getString("text").length() > 48) {
-                            Integer rest = data.getArray("textPrint").getMap(i).getString("text").length() % 48;
-                            for (int j = 0; j < rest; j++) {
-                                PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,
-                                        data.getArray("textPrint").getMap(i).getString("text").substring(j * 48, (j + 1) * 48));
-                            }
+                    }else if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("medium")){
+                        int sizePhrase=32;
+                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
+                        }else{
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
                         }
-                        PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,
-                                data.getArray("textPrint").getMap(i).getString("text"));
+                    }else{
+                        int sizePhrase=32;
+                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
+                        }else{
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
+                        }
                     }
+                }
+                else if(data.getArray("textPrint").getMap(i).getString("position").toLowerCase().equals("right")){
+                    if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("small")){
+                        int sizePhrase=48;
+                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
+                        }else{
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
+                        }
+                    }else if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("medium")){
+                        int sizePhrase=32;
+                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
+                        }else{
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
+                        }
+                    }else{
+                        int sizePhrase=32;
 
-                } else if (data.getArray("textPrint").getMap(i).getString("position").toLowerCase().equals("left")) {
-                    if (data.getString("fontSize").toLowerCase().equals("medium")
-                            || data.getString("fontSize").toLowerCase().equals("large")) {
-                        if (data.getArray("textPrint").getMap(i).getString("text").length() > 32) {
-                            Integer rest = data.getArray("textPrint").getMap(i).getString("text").length() % 32;
-                            for (int j = 0; j < rest; j++) {
-                                PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,
-                                        data.getArray("textPrint").getMap(i).getString("text").substring(j * 48, (j + 1) * 48));
-                            }
+                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
+                        }else{
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
                         }
-                        PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,
-                                data.getArray("textPrint").getMap(i).getString("text"));
-                    } else if (data.getString("fontSize").toLowerCase().equals("small")) {
-                        if (data.getArray("textPrint").getMap(i).getString("text").length() > 48) {
-                            Integer rest = data.getArray("textPrint").getMap(i).getString("text").length() % 48;
-                            for (int j = 0; j < rest; j++) {
-                                PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,
-                                        data.getArray("textPrint").getMap(i).getString("text").substring(j * 48, (j + 1) * 48));
-                            }
-                        }
-                        PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,
-                                data.getArray("textPrint").getMap(i).getString("text"));
                     }
-
-                } else {
-                    if (data.getString("fontSize").toLowerCase().equals("medium")
-                            || data.getString("fontSize").toLowerCase().equals("large")) {
-                        if (data.getArray("textPrint").getMap(i).getString("text").length() > 32) {
-                            Integer rest = data.getArray("textPrint").getMap(i).getString("text").length() % 32;
-                            for (int j = 0; j < rest; j++) {
-                                PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,
-                                        data.getArray("textPrint").getMap(i).getString("text").substring(j * 48, (j + 1) * 48));
-                            }
+                }else{
+                    if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("small")){
+                        int sizePhrase=48;
+                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
+                        }else{
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
                         }
-                        PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,
-                                data.getArray("textPrint").getMap(i).getString("text"));
-                    } else if (data.getString("fontSize").toLowerCase().equals("small")) {
-                        if (data.getArray("textPrint").getMap(i).getString("text").length() > 48) {
-                            Integer rest = data.getArray("textPrint").getMap(i).getString("text").length() % 48;
-                            for (int j = 0; j < rest; j++) {
-                                PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,
-                                        data.getArray("textPrint").getMap(i).getString("text").substring(j * 48, (j + 1) * 48));
-                            }
+                    }else if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("medium")){
+                        int sizePhrase=32;
+                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
+                        }else{
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
                         }
-                        PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,
-                                data.getArray("textPrint").getMap(i).getString("text"));
+                    }else{
+                        int sizePhrase=32;
+                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
+                        }else{
+                            PosDigital.getInstance().getPrinter().init();
+                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
+                        }
                     }
-
                 }
             }
             PosDigital.getInstance().getPrinter().print(new IPrinterCallback() {

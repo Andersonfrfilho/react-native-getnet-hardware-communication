@@ -1,7 +1,7 @@
 {
   "name": "react-native-getnet-hardware-communication",
   "title": "React Native Getnet Hardware Communication",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Get-Net Machine Hardware Communication Module",
   "main": "index.js",
   "scripts": {
