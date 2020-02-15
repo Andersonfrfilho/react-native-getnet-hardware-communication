@@ -1,4 +1,4 @@
-package com.andersonfrfilho.getnethardwarecommunication;
+package com.reactnative.andersonfrfilho.getnethardwarecommunication;
 
 import android.support.annotation.Nullable;
 

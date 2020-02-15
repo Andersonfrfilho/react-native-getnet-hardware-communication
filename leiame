@@ -1,0 +1,22 @@
+1º - executing comand
+create-react-native-module --module-prefix react-native --package-identifier com.reactnative.andersonfrfilho.getnethardwarecommunication --platforms android --github-account andersonfrfilho --author-name Anderson --author-email andersonfrfilho@gmail.com --generate-example --example-name example --example-react-native-version 0.61.5 getnet-hardware-communication
+2º - import module project
+module setting 
+ 2.1 - button plus add module
+3º - dependence module project
+ 3.1 - add module project
+4º - replace in build.gradle
+  4.1 - version change
+    def DEFAULT_MIN_SDK_VERSION = 22
+  4.2 - import module in dependence
+  dependencies {
+    //noinspection GradleDynamicVersion
+    implementation 'com.facebook.react:react-native:+'
+    implementation project(path: ':libposdigital-1.4.0-2-release')  // From node_modules
+  }
+  ====replace====
+  dependencies {
+    //noinspection GradleDynamicVersion
+    implementation 'com.facebook.react:react-native:+'
+    implementation fileTree(dir: 'libposdigital-1.4.0-2-release',include:['*.aar'])// From node_modules
+  }

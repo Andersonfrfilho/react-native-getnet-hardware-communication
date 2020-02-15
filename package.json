@@ -1,28 +1,22 @@
 {
   "name": "react-native-getnet-hardware-communication",
   "title": "React Native Getnet Hardware Communication",
-  "version": "0.0.15",
-  "description": "Get-Net Machine Hardware Communication Module",
+  "version": "0.0.16",
+  "description": "TODO",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
-    }
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/github_account/react-native-getnet-hardware-communication.git",
-    "baseUrl": "https://github.com/github_account/react-native-getnet-hardware-communication"
+    "url": "git+https://github.com/andersonfrfilho/react-native-getnet-hardware-communication.git",
+    "baseUrl": "https://github.com/andersonfrfilho/react-native-getnet-hardware-communication"
   },
   "keywords": [
     "react-native"
   ],
   "author": {
-    "name": "Anderson Fernandes",
+    "name": "Anderson",
     "email": "andersonfrfilho@gmail.com"
   },
   "license": "MIT",
@@ -30,20 +24,10 @@
   "readmeFilename": "README.md",
   "peerDependencies": {
     "react": "^16.8.1",
-    "react-native": ">=0.59.0-rc.0 <1.0.x"
+    "react-native": ">=0.60.0-rc.0 <1.0.x"
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.3.5",
-    "@commitlint/config-conventional": "^8.3.4",
-    "commitizen": "^4.0.3",
-    "cz-conventional-changelog": "3.0.2",
-    "husky": "^4.2.1",
-    "react": "^16.8.3",
-    "react-native": "^0.59.10"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+    "react": "^16.9.0",
+    "react-native": "^0.61.5"
   }
 }

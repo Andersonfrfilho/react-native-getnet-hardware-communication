@@ -73,7 +73,7 @@ const myFunction = async () => {
   ///////////////////////////////////
   //print view
   async function print() {
-    const data = await ComunicationHardwareGetNet.printView({
+    const data = await GetnetHardwareCommunication.printView({
       textPrint: [
         {
           text: `Anderson`,

@@ -1,7 +1,5 @@
-package com.andersonfrfilho.getnethardwarecommunication;
+package com.reactnative.andersonfrfilho.getnethardwarecommunication;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -10,6 +8,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.getnet.posdigital.PosDigital;
@@ -23,7 +22,6 @@ import com.getnet.posdigital.printer.PrinterStatus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModule {
 
@@ -600,5 +598,4 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
 
 
     }
-
 }
