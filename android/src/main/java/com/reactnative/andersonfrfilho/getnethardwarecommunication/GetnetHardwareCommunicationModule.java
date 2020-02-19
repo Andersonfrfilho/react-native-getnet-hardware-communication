@@ -1,18 +1,25 @@
 package com.reactnative.andersonfrfilho.getnethardwarecommunication;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.getnet.posdigital.PosDigital;
 import com.getnet.posdigital.camera.ICameraCallback;
+import com.getnet.posdigital.card.CardResponse;
+import com.getnet.posdigital.card.ICardCallback;
+import com.getnet.posdigital.card.SearchType;
 import com.getnet.posdigital.info.IInfoCallback;
 import com.getnet.posdigital.info.InfoResponse;
 import com.getnet.posdigital.printer.AlignMode;
@@ -20,6 +27,10 @@ import com.getnet.posdigital.printer.FontFormat;
 import com.getnet.posdigital.printer.IPrinterCallback;
 import com.getnet.posdigital.printer.PrinterStatus;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,32 +49,307 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
     }
 
     @ReactMethod
-    public void checkServiceMethod(final Promise promise) {
-        PosDigital.register(getReactApplicationContext(), new PosDigital.BindCallback() {
+    public void startingServices(final Promise promise) {
+        PosDigital.register(this.reactContext, new PosDigital.BindCallback() {
+            WritableNativeMap promiseResponseServiceStatus = new WritableNativeMap();
             @Override
             public void onError(Exception e) {
-
+                promise.reject(e);
+                return;
             }
 
             @Override
             public void onConnected() {
-
+                promiseResponseServiceStatus.putBoolean("services",true);
+                promise.resolve(promiseResponseServiceStatus);
+                return;
             }
 
             @Override
             public void onDisconnected() {
-
+                promiseResponseServiceStatus.putBoolean("services",false);
+                promise.resolve(promiseResponseServiceStatus);
+                return;
             }
         });
-        boolean retorno = PosDigital.getInstance().isInitiated();
-        promise.resolve("Modulo iniciado: " + retorno);
+    }
+    @ReactMethod
+    public void checkConnections(final Promise promise){
+        WritableNativeMap promiseCheckConnection= new WritableNativeMap();
+        promiseCheckConnection.putBoolean("connection",PosDigital.getInstance().isInitiated());
+        promise.resolve(promiseCheckConnection);
         return;
     }
+    @ReactMethod
+    public void devInformation(final Promise promise){
+        try{
+            PosDigital.getInstance().getInfo().info(new IInfoCallback.Stub() {
+                WritableNativeMap devInfosInformation = new WritableNativeMap();
+                @Override
+                public void onInfo(InfoResponse infoResponse){
+                    devInfosInformation.putString("BcVersion",infoResponse.getBcVersion());
+                    devInfosInformation.putString("os",infoResponse.getOsVersion());
+                    devInfosInformation.putString("sdk",infoResponse.getSdkVersion());
+                    devInfosInformation.putString("serialNumber",infoResponse.getSerialNumber());
+                    promise.resolve(devInfosInformation);
+                    return;
+                }
+
+                @Override
+                public void onError(String s){
+                    devInfosInformation.putString("error",s);
+                    promise.resolve(devInfosInformation);
+                    return;
+
+                }
+            });
+        }catch (Exception error){
+            promise.reject(error);
+        }
+    }
+    @ReactMethod
+    public void cardStartConnectAntenna(ReadableMap config,final Promise promise){
+        if(config.getString("typeCard").toLowerCase().equals("magnetic")){
+            try {
+                String[] searchType = {SearchType.MAG};
+                PosDigital.getInstance().getCard().search(config.getInt("timeout"),searchType, new ICardCallback.Stub() {
+                    WritableNativeMap cardConnectResponse= new WritableNativeMap();
+                    @Override
+                    public void onCard(CardResponse cardResponse) {
+                        cardConnectResponse.putString("typeCard","magnetic");
+                        cardConnectResponse.putInt("numberCard",cardResponse.describeContents());
+                        cardConnectResponse.putString("dataExpired",cardResponse.getExpireDate());
+                        cardConnectResponse.putString("pan",cardResponse.getPan());
+                        cardConnectResponse.putString("track1",cardResponse.getTrack1());
+                        cardConnectResponse.putString("track2",cardResponse.getTrack2());
+                        cardConnectResponse.putString("track3",cardResponse.getTrack3());
+                        cardConnectResponse.putString("type",cardResponse.getType());
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+
+                    @Override
+                    public void onMessage(String s) {
+                        cardConnectResponse.putString("message",s);
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+
+                    @Override
+                    public void onError(String s) {
+                        cardConnectResponse.putString("error",s);
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+                });
+            }catch (Exception error){
+                promise.reject(error);
+                return;
+            }
+        }else if(config.getString("typeCard").toLowerCase().equals("chip")){
+            try {
+                String[] searchType = {SearchType.CHIP};
+                PosDigital.getInstance().getCard().search(config.getInt("timeout"),searchType, new ICardCallback.Stub() {
+                    WritableNativeMap cardConnectResponse= new WritableNativeMap();
+                    @Override
+                    public void onCard(CardResponse cardResponse) {
+                        cardConnectResponse.putString("typeCard","chip");
+                        cardConnectResponse.putInt("numberCard",cardResponse.describeContents());
+                        cardConnectResponse.putString("dataExpired",cardResponse.getExpireDate());
+                        cardConnectResponse.putString("pan",cardResponse.getPan());
+                        cardConnectResponse.putString("track1",cardResponse.getTrack1());
+                        cardConnectResponse.putString("track2",cardResponse.getTrack2());
+                        cardConnectResponse.putString("track3",cardResponse.getTrack3());
+                        cardConnectResponse.putString("type",cardResponse.getType());
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+
+                    @Override
+                    public void onMessage(String s) {
+                        cardConnectResponse.putString("message",s);
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+
+                    @Override
+                    public void onError(String s) {
+                        cardConnectResponse.putString("error",s);
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+                });
+            }catch (Exception error){
+                promise.reject(error);
+                return;
+            }
+        }else if(config.getString("typeCard").toLowerCase().equals("nfc")){
+            try {
+                String[] searchType = {SearchType.NFC};
+                PosDigital.getInstance().getCard().search(config.getInt("timeout"),searchType, new ICardCallback.Stub() {
+                    WritableNativeMap cardConnectResponse= new WritableNativeMap();
+                    @Override
+                    public void onCard(CardResponse cardResponse) {
+                        cardConnectResponse.putString("typeCard","nfc");
+                        cardConnectResponse.putInt("numberCard",cardResponse.describeContents());
+                        cardConnectResponse.putString("dataExpired",cardResponse.getExpireDate());
+                        cardConnectResponse.putString("pan",cardResponse.getPan());
+                        cardConnectResponse.putString("track1",cardResponse.getTrack1());
+                        cardConnectResponse.putString("track2",cardResponse.getTrack2());
+                        cardConnectResponse.putString("track3",cardResponse.getTrack3());
+                        cardConnectResponse.putString("type",cardResponse.getType());
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+
+                    @Override
+                    public void onMessage(String s) {
+                        cardConnectResponse.putString("message",s);
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+
+                    @Override
+                    public void onError(String s) {
+                        cardConnectResponse.putString("error",s);
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+                });
+            }catch (Exception error){
+                promise.reject(error);
+                return;
+            }
+        }else{
+            try {
+                String[] searchType = {SearchType.MAG, SearchType.CHIP, SearchType.NFC};
+                PosDigital.getInstance().getCard().search(config.getInt("timeout"),searchType, new ICardCallback.Stub() {
+                    WritableNativeMap cardConnectResponse= new WritableNativeMap();
+                    @Override
+                    public void onCard(CardResponse cardResponse) {
+                        cardConnectResponse.putInt("numberCard",cardResponse.describeContents());
+                        cardConnectResponse.putString("dataExpired",cardResponse.getExpireDate());
+                        cardConnectResponse.putString("pan",cardResponse.getPan());
+                        cardConnectResponse.putString("track1",cardResponse.getTrack1());
+                        cardConnectResponse.putString("track2",cardResponse.getTrack2());
+                        cardConnectResponse.putString("track3",cardResponse.getTrack3());
+                        cardConnectResponse.putString("type",cardResponse.getType());
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+
+                    @Override
+                    public void onMessage(String s) {
+                        cardConnectResponse.putString("message",s);
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+
+                    @Override
+                    public void onError(String s) {
+                        cardConnectResponse.putString("error",s);
+                        promise.resolve(cardConnectResponse);
+                        return;
+                    }
+                });
+            }catch (Exception error){
+                promise.reject(error);
+                return;
+            }
+        }
+    }
+    @ReactMethod
+    public void cardStopConnectAntenna(final Promise promise){
+        WritableNativeMap cardStopConnectResponse= new WritableNativeMap();
+        try{
+            PosDigital.getInstance().getCard().stopAllReaders();
+            cardStopConnectResponse.putBoolean("stop",true);
+            promise.resolve(cardStopConnectResponse);
+            return;
+
+        }catch (Exception error){
+            promise.reject(error);
+            return;
+        }
+    }
+
+
 
     @ReactMethod
-    public void printMethod(ReadableMap data, final Promise promise) {
+    public void printMethod(ReadableMap options, final Promise promise) {
         try {
-            for (int i = 0; i < data.getArray("textPrint").size(); i++){
+            PosDigital.getInstance().getPrinter().init();
+            PosDigital.getInstance().getPrinter().setGray(options.getInt("weight"));
+            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
+            PosDigital.getInstance().getPrinter().addQrCode(AlignMode.LEFT,240,"Anderson Fernandes");
+            PosDigital.getInstance().getPrinter().addQrCode(AlignMode.RIGHT,240,"Anderson Fernandes");
+            PosDigital.getInstance().getPrinter().addImageBitmap(AlignMode.CENTER,Bitmap.createBitmap(200,200,Bitmap.Config.ARGB_8888));
+            PosDigital.getInstance().getPrinter().print(new IPrinterCallback.Stub() {
+                @Override
+                public void onSuccess() throws RemoteException {
+                    promise.resolve("true");
+                    return;
+                }
+
+                @Override
+                public void onError(int i) throws RemoteException {
+                    promise.resolve("true");
+                    return;
+                }
+            });
+        } catch (Exception error) {
+            promise.resolve(error);
+            return;
+        }
+    }
+            /*
+        }
+            PosDigital.getInstance().getPrinter().init();
+            for(int i=0;i<options.getArray("textPrint").size();i++){
+                if(options.getArray("print").getMap(i).getString("type").equals("bitmap")){
+
+                }else if(options.getArray("print").getMap(i).getString("type").equals("qrcode")){
+                    if(options.getArray("print").getMap(i).getString("fontSize").toLowerCase().equals("small")){
+                        if(options.getArray("print").getMap(i).getString("aling").toLowerCase().equals("left")){
+                            PosDigital.getInstance().getPrinter().setGray(options.getInt("weight"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,options.getArray("print").getMap(i).getString("content"));
+                        }else if(options.getArray("print").getMap(i).getString("aling").toLowerCase().equals("right")){
+                            PosDigital.getInstance().getPrinter().setGray(options.getInt("weight"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,options.getArray("print").getMap(i).getString("content"));
+                        }else{
+                            PosDigital.getInstance().getPrinter().setGray(options.getInt("weight"));
+                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,options.getArray("print").getMap(i).getString("content"));
+                        }
+                    }
+                }
+            }
+            PosDigital.getInstance().getPrinter().setGray(options.getInt("weight"));
+            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
+            PosDigital.getInstance().getPrinter().addQrCode(AlignMode.LEFT,240,"Anderson Fernandes");
+            PosDigital.getInstance().getPrinter().addQrCode(AlignMode.RIGHT,240,"Anderson Fernandes");
+            //BitmapFactory bitmapFactory = new BitmapFactory(com.facebook.react.R.id.);
+            //PosDigital.getInstance().getPrinter().addImageBitmap(AlignMode.CENTER,bitmap);
+
+            PosDigital.getInstance().getPrinter().print(new IPrinterCallback.Stub() {
+                WritableNativeMap printResponse= new WritableNativeMap();
+                @Override
+                public void onSuccess() {
+                    printResponse.putBoolean("printer",true);
+                    promise.resolve(printResponse);
+                    return;
+                }
+                @Override
+                public void onError(int i) {
+                    printResponse.putBoolean("printer",false);
+                    promise.resolve(printResponse);
+                    return;
+                }
+            });
+            return;
+            /*for (int i = 0; i < data.getArray("textPrint").size(); i++){
                 if(data.getArray("textPrint").getMap(i).getString("position").equals("bitmap")){
 
                 }else if(data.getArray("textPrint").getMap(i).getString("position").toLowerCase().equals("left")){
@@ -266,7 +552,7 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
             return;
         }
 
-    }
+    }*/
 
     @ReactMethod
     public void ledMethod(ReadableMap data, final Promise promise) {
