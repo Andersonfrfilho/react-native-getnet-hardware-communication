@@ -4,14 +4,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Base64;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableNativeMap;
@@ -273,17 +274,75 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
         }
     }
 
-
-
     @ReactMethod
-    public void printMethod(ReadableMap options, final Promise promise) {
+    public void printMethod(ReadableArray options, final Promise promise) {
         try {
             PosDigital.getInstance().getPrinter().init();
-            PosDigital.getInstance().getPrinter().setGray(options.getInt("weight"));
-            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
-            PosDigital.getInstance().getPrinter().addQrCode(AlignMode.LEFT,240,"Anderson Fernandes");
-            PosDigital.getInstance().getPrinter().addQrCode(AlignMode.RIGHT,240,"Anderson Fernandes");
-            PosDigital.getInstance().getPrinter().addImageBitmap(AlignMode.CENTER,Bitmap.createBitmap(200,200,Bitmap.Config.ARGB_8888));
+            for(int i=0;i<options.size();i++){
+                if(options.getMap(i).getString("type").toLowerCase().equals("image")){
+                    PosDigital.getInstance().getPrinter().setGray(options.getMap(i).getInt("weight"));
+                    int position = options.getMap(i).getString("value").indexOf(',');
+                    if(position==-1){
+                        byte[] byteImage = Base64.decode(options.getMap(i).getString("value"),Base64.DEFAULT);
+                        Bitmap decodeImage = BitmapFactory.decodeByteArray(byteImage, 0, byteImage.length);
+
+                        if(options.getMap(i).getString("align").toLowerCase().equals("left")){
+                            PosDigital.getInstance().getPrinter().addImageBitmap(AlignMode.LEFT,decodeImage);
+                        }else if(options.getMap(i).getString("align").toLowerCase().equals("right")){
+                            PosDigital.getInstance().getPrinter().addImageBitmap(AlignMode.RIGHT,decodeImage);
+                        }else{
+                            PosDigital.getInstance().getPrinter().addImageBitmap(AlignMode.CENTER,decodeImage);
+                        }
+                    }else{
+                        String newImageBase64 = options.getMap(i).getString("value").substring(position+1,options.getMap(i).getString("value").length());
+                        byte[] byteImage = Base64.decode(newImageBase64,Base64.DEFAULT);
+                        Bitmap decodeImage = BitmapFactory.decodeByteArray(byteImage, 0, byteImage.length);
+                        if(options.getMap(i).getString("align").toLowerCase().equals("left")){
+                            PosDigital.getInstance().getPrinter().addImageBitmap(AlignMode.LEFT,decodeImage);
+                        }else if(options.getMap(i).getString("align").toLowerCase().equals("right")){
+                            PosDigital.getInstance().getPrinter().addImageBitmap(AlignMode.RIGHT,decodeImage);
+                        }else{
+                            PosDigital.getInstance().getPrinter().addImageBitmap(AlignMode.CENTER,decodeImage);
+                        }
+                    }
+                }else if(options.getMap(i).getString("type").toLowerCase().equals("barcode")){
+                    PosDigital.getInstance().getPrinter().setGray(options.getMap(i).getInt("weight"));
+                    if(options.getMap(i).getString("align").toLowerCase().equals("left")){
+                        PosDigital.getInstance().getPrinter().addBarCode(AlignMode.LEFT,options.getMap(i).getString("value"));
+                    }else if (options.getMap(i).getString("align").toLowerCase().equals("right")){
+                        PosDigital.getInstance().getPrinter().addBarCode(AlignMode.RIGHT,options.getMap(i).getString("value"));
+                    }else{
+                        PosDigital.getInstance().getPrinter().addBarCode(AlignMode.CENTER,options.getMap(i).getString("value"));
+                    }
+                }
+                else if(options.getMap(i).getString("type").toLowerCase().equals("qrcode")){
+                    PosDigital.getInstance().getPrinter().setGray(options.getMap(i).getInt("weight"));
+                    if(options.getMap(i).getString("align").toLowerCase().equals("left")){
+                        PosDigital.getInstance().getPrinter().addQrCode(AlignMode.LEFT,240,options.getMap(i).getString("value"));
+                    }else if (options.getMap(i).getString("align").toLowerCase().equals("right")){
+                        PosDigital.getInstance().getPrinter().addQrCode(AlignMode.RIGHT,240,options.getMap(i).getString("value"));
+                    }else{
+                        PosDigital.getInstance().getPrinter().addQrCode(AlignMode.CENTER,240,options.getMap(i).getString("value"));
+                    }
+                }else{
+                    PosDigital.getInstance().getPrinter().setGray(options.getMap(i).getInt("weight"));
+                    if(options.getMap(i).getString("fontSize").toLowerCase().equals("small")){
+                        PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
+                    }else if(options.getMap(i).getString("fontSize").toLowerCase().equals("large")){
+                        PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
+                    }else{
+                        PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
+                    }
+                    if(options.getMap(i).getString("align").toLowerCase().equals("left")){
+                        PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,options.getMap(i).getString("value"));
+
+                    }else if(options.getMap(i).getString("align").toLowerCase().equals("right")){
+                        PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,options.getMap(i).getString("value"));
+                    }else{
+                        PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,options.getMap(i).getString("value"));
+                    }
+                }
+            }
             PosDigital.getInstance().getPrinter().print(new IPrinterCallback.Stub() {
                 @Override
                 public void onSuccess() throws RemoteException {
@@ -298,261 +357,10 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
                 }
             });
         } catch (Exception error) {
-            promise.resolve(error);
+            promise.reject("bla"+error.getMessage());
             return;
         }
     }
-            /*
-        }
-            PosDigital.getInstance().getPrinter().init();
-            for(int i=0;i<options.getArray("textPrint").size();i++){
-                if(options.getArray("print").getMap(i).getString("type").equals("bitmap")){
-
-                }else if(options.getArray("print").getMap(i).getString("type").equals("qrcode")){
-                    if(options.getArray("print").getMap(i).getString("fontSize").toLowerCase().equals("small")){
-                        if(options.getArray("print").getMap(i).getString("aling").toLowerCase().equals("left")){
-                            PosDigital.getInstance().getPrinter().setGray(options.getInt("weight"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,options.getArray("print").getMap(i).getString("content"));
-                        }else if(options.getArray("print").getMap(i).getString("aling").toLowerCase().equals("right")){
-                            PosDigital.getInstance().getPrinter().setGray(options.getInt("weight"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,options.getArray("print").getMap(i).getString("content"));
-                        }else{
-                            PosDigital.getInstance().getPrinter().setGray(options.getInt("weight"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,options.getArray("print").getMap(i).getString("content"));
-                        }
-                    }
-                }
-            }
-            PosDigital.getInstance().getPrinter().setGray(options.getInt("weight"));
-            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
-            PosDigital.getInstance().getPrinter().addQrCode(AlignMode.LEFT,240,"Anderson Fernandes");
-            PosDigital.getInstance().getPrinter().addQrCode(AlignMode.RIGHT,240,"Anderson Fernandes");
-            //BitmapFactory bitmapFactory = new BitmapFactory(com.facebook.react.R.id.);
-            //PosDigital.getInstance().getPrinter().addImageBitmap(AlignMode.CENTER,bitmap);
-
-            PosDigital.getInstance().getPrinter().print(new IPrinterCallback.Stub() {
-                WritableNativeMap printResponse= new WritableNativeMap();
-                @Override
-                public void onSuccess() {
-                    printResponse.putBoolean("printer",true);
-                    promise.resolve(printResponse);
-                    return;
-                }
-                @Override
-                public void onError(int i) {
-                    printResponse.putBoolean("printer",false);
-                    promise.resolve(printResponse);
-                    return;
-                }
-            });
-            return;
-            /*for (int i = 0; i < data.getArray("textPrint").size(); i++){
-                if(data.getArray("textPrint").getMap(i).getString("position").equals("bitmap")){
-
-                }else if(data.getArray("textPrint").getMap(i).getString("position").toLowerCase().equals("left")){
-                    if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("small")){
-                        int sizePhrase=48;
-                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
-                        }else{
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
-                        }
-                    }else if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("medium")){
-                        int sizePhrase=32;
-                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
-                        }else{
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
-                        }
-                    }else{
-                        int sizePhrase=32;
-                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
-                        }else{
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
-                        }
-                    }
-                }
-                else if(data.getArray("textPrint").getMap(i).getString("position").toLowerCase().equals("right")){
-                    if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("small")){
-                        int sizePhrase=48;
-                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
-                        }else{
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
-                        }
-                    }else if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("medium")){
-                        int sizePhrase=32;
-                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
-                        }else{
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
-                        }
-                    }else{
-                        int sizePhrase=32;
-
-                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
-                        }else{
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.RIGHT,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
-                        }
-                    }
-                }else{
-                    if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("small")){
-                        int sizePhrase=48;
-                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
-                        }else{
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.SMALL);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
-                        }
-                    }else if(data.getArray("textPrint").getMap(i).getString("fontSize").toLowerCase().equals("medium")){
-                        int sizePhrase=32;
-                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
-                        }else{
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.MEDIUM);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
-                        }
-                    }else{
-                        int sizePhrase=32;
-                        if(data.getArray("textPrint").getMap(i).getString("text").length()>=sizePhrase){
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,sizePhrase));
-                        }else{
-                            PosDigital.getInstance().getPrinter().init();
-                            PosDigital.getInstance().getPrinter().setGray(data.getArray("textPrint").getMap(i).getInt("setFontGray"));
-                            PosDigital.getInstance().getPrinter().defineFontFormat(FontFormat.LARGE);
-                            PosDigital.getInstance().getPrinter().addText(AlignMode.CENTER,data.getArray("textPrint").getMap(i).getString("text").substring(0,data.getArray("textPrint").getMap(i).getString("text").length()));
-                        }
-                    }
-                }
-            }
-            PosDigital.getInstance().getPrinter().print(new IPrinterCallback() {
-                @Override
-                public void onSuccess() throws RemoteException {
-                    promise.resolve("" + PrinterStatus.OK);
-                }
-
-                @Override
-                public void onError(int i) throws RemoteException {
-                    switch (i) {
-                        case 2:
-                            promise.reject("erro no módulo de impressão:" + false, "Impressora não iniciada");
-                            return;
-                        case 3:
-                            promise.reject("erro no módulo de impressão:" + false, "Impressora superaquecida");
-
-                            return;
-                        case 4:
-                            promise.reject("erro no módulo de impressão:" + false, "Fila de impressão muito grande");
-
-                            return;
-                        case 5:
-                            promise.reject("erro no módulo de impressão:" + false, "Parametros incorretos");
-
-                            return;
-                        case 10:
-                            promise.reject("erro no módulo de impressão:" + false, "Porta da impressora aberta");
-
-                            return;
-                        case 11:
-                            promise.reject("erro no módulo de impressão:" + false, "Temperatura baixa de mais");
-
-                            return;
-                        case 12:
-                            promise.reject("erro no módulo de impressão:" + false, "Sem bateria suficiente para impressão");
-
-                            return;
-                        case 13:
-                            promise.reject("erro no módulo de impressão:" + false, "Motor de passo com problemas");
-
-                            return;
-                        case 15:
-                            promise.reject("erro no módulo de impressão:" + false, "Sem bobina");
-
-                            return;
-                        case 16:
-                            promise.reject("erro no módulo de impressão:" + false, "bobina acabando");
-
-                            return;
-                        case 17:
-                            promise.reject("erro no módulo de impressão:" + false, "Bobina travada");
-
-                            return;
-                        default:
-                            promise.reject("erro no módulo de impressão:" + false, "Erro não identificado");
-
-                            return;
-                    }
-                }
-
-                @Override
-                public IBinder asBinder() {
-                    return null;
-                }
-
-            });
-            promise.resolve("Modulo de impressão teve sucesso");
-            return;
-        } catch (Exception e) {
-            promise.reject("erro no módulo de impressão:" + false, "reject");
-
-            return;
-        }
-
-    }*/
 
     @ReactMethod
     public void ledMethod(ReadableMap data, final Promise promise) {
@@ -609,7 +417,6 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
     @ReactMethod
     public void beeperMethod(ReadableMap data, final Promise promise) {
         try {
-            PosDigital.getInstance().getBeeper().nfc();
             switch (data.getString("beeperMode").toLowerCase()) {
                 case "error":
                     PosDigital.getInstance().getBeeper().error();
@@ -624,14 +431,13 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
                     PosDigital.getInstance().getBeeper().success();
                     break;
             }
-            promise.resolve("Modulo de led apagou: " + data.getString("color").toLowerCase());
+            promise.resolve("Beeper: " + data.getString("beeperMode").toLowerCase());
             return;
         } catch (Exception e) {
-            promise.resolve("error : " + data.getString("color").toLowerCase());
+            promise.resolve("error : " + data.getString("beeperMode").toLowerCase());
             return;
         }
     }
-
     @ReactMethod
     public void cameraBackMethod(final Promise promise) {
 
@@ -666,35 +472,6 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
             return;
         } catch (Exception e) {
             promise.reject("error", "error informações da maquina");
-            return;
-        }
-    }
-
-    @ReactMethod
-    public void infoMethod(final Promise promise) {
-        try {
-            PosDigital.getInstance().getInfo().info(new IInfoCallback.Stub() {
-                @Override
-                public void onInfo(InfoResponse infoResponse) throws RemoteException {
-                    StringBuilder info = new StringBuilder().append("SDK Version:[").append(infoResponse.getSdkVersion())
-                            .append("]\n").append("BC Version:[").append(infoResponse.getBcVersion()).append("]\n")
-                            .append("Os Version:[").append(infoResponse.getOsVersion()).append("]\n").append("Serial Number:[")
-                            .append(infoResponse.getSerialNumber()).append("]");
-                    promise.resolve(info);
-                    return;
-                }
-
-                @Override
-                public void onError(String s) throws RemoteException {
-                    promise.reject(s, "error");
-                    return;
-                }
-            });
-            promise.resolve("modulo de informações da maquina ativado");
-            return;
-        } catch (RemoteException e) {
-            promise.reject("error", "error informações da maquina");
-
             return;
         }
     }

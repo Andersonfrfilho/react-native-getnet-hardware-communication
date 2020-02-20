@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import GetnetHardwareCommunication from 'react-native-getnet-hardware-communication';
-
+import ConfigPrint from './configPrint';
+import configPrint from './configPrint';
 export default function App() {
   const [service, setService] = useState(false);
   const [connection, setConnection] = useState(false);
@@ -63,40 +64,38 @@ export default function App() {
     }
   }
   async function printer() {
-    await GetnetHardwareCommunication.printMethod({weight: 3});
+    const data = await GetnetHardwareCommunication.printMethod(configPrint);
   }
-  // async function print() {
-  //   const responsePrint = await GetnetHardwareCommunication.printMethod({
-  //     // 1 - 5;
-  //     setFontGray: 5,
-  //     //choice a size
-  //     fontSize: 'small',
-  //     //using text(small<48 || medium && large << 36) and position
-  //     //Bitmap width: 378 pixels
-  //     textPrint: [
-  //       {
-  //         text: 'text write or path_bitmap',
-  //         position: 'bitmap-1',
-  //       },
-  //       {
-  //         text: 'text write or path_bitmap',
-  //         position: 'left',
-  //       },
-  //       {
-  //         text: 'text write or path_bitmap',
-  //         position: 'center',
-  //       },
-  //       //Example BITMAP -> bitmap-0 (left), bitmap-1 (central), bitmap-2 (rigth);
-  //       //Example Text
-  //       {text: 'text implementation', position: 'center'},
-  //       ,
-  //     ],
-  //   });
-  // }
+  async function ledOn() {
+    const data = await GetnetHardwareCommunication.ledMethod({
+      //turn: true | false
+      turn: true,
+      //color blue | green | red | yellow | all
+      color: 'all',
+    });
+  }
+  async function ledOff() {
+    const data = await GetnetHardwareCommunication.ledMethod({
+      //turn: true | false
+      turn: false,
+      //color blue | green | red | yellow | all
+      color: 'all',
+    });
+  }
+  async function beeper() {
+    const data = await GetnetHardwareCommunication.beeperMethod({
+      beeperMode: 'success',
+    });
+  }
+  async function camera() {
+    const data = await GetnetHardwareCommunication.cameraBackMethod();
+    console.log(data);
+  }
   // async function printView() {
   //   const data = await GetnetHardwareCommunication.printView({
   //     textPrint: [
   //       {
+  //         type:'text',
   //         text: 'Anderson',
   //         position: 'bitmap',
   //         fontSize: 'small',
@@ -172,6 +171,30 @@ export default function App() {
         disabled={!(service && connection)}
         onPress={() => printer()}>
         <Text style={styles.textButton}>Printer</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => ledOn()}>
+        <Text style={styles.textButton}>On Led</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => ledOff()}>
+        <Text style={styles.textButton}>Off Led</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => beeper()}>
+        <Text style={styles.textButton}>Bepper</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => camera()}>
+        <Text style={styles.textButton}>Camera</Text>
       </TouchableOpacity>
     </View>
   );
