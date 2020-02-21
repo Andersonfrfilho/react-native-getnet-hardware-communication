@@ -1,12 +1,12 @@
 # `react-native-getnet-hardware-communication`
 
-[![npm](https://img.shields.io/npm/v/react-native-getnet-hardware-communication)](https://www.npmjs.com/package/react-native-getnet-hardware-communication.svg)
-![Supports Android](https://img.shields.io/badge/platforms-android-lightgrey.svg)
-![MIT License](https://img.shields.io/npm/l/react-native-getnet-hardware-communication.svg)
+[![npm](https://img.shields.io/npm/v/react-native-getnet-hardware-communication)](https://www.npmjs.com/package/react-native-getnet-hardware-communication)
+![Supports Android](https://img.shields.io/badge/platforms-android-lightgrey)
+![MIT License](https://img.shields.io/npm/l/react-native-getnet-hardware-communication)
 
-[![npm total downloads](https://img.shields.io/npm/dt/react-native-getnet-hardware-communication.svg)](https://img.shields.io/npm/dt/react-native-getnet-hardware-communication.svg)
-[![npm monthly downloads](https://img.shields.io/npm/dm/react-native-getnet-hardware-communication.svg)](https://img.shields.io/npm/dm/react-native-getnet-hardware-communication.svg)
-[![npm weekly downloads](https://img.shields.io/npm/dw/react-native-getnet-hardware-communication.svg)](https://img.shields.io/npm/dw/react-native-getnet-hardware-communication.svg)<br>
+[![npm total downloads](https://img.shields.io/npm/dt/react-native-getnet-hardware-communication.svg)](https://img.shields.io/npm/dt/react-native-getnet-hardware-communication)
+[![npm monthly downloads](https://img.shields.io/npm/dm/react-native-getnet-hardware-communication.svg)](https://img.shields.io/npm/dm/react-native-getnet-hardware-communication)
+[![npm weekly downloads](https://img.shields.io/npm/dw/react-native-getnet-hardware-communication.svg)](https://img.shields.io/npm/dw/react-native-getnet-hardware-communication)<br>
 
 Device Information for [React Native](https://github.com/facebook/react-native).<br>
 
