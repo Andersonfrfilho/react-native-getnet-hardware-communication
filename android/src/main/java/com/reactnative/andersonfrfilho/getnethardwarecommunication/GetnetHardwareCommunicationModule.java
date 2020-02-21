@@ -88,7 +88,7 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
                 WritableNativeMap devInfosInformation = new WritableNativeMap();
                 @Override
                 public void onInfo(InfoResponse infoResponse){
-                    devInfosInformation.putString("bCVersion",infoResponse.getBcVersion());
+                    devInfosInformation.putString("bcVersion",infoResponse.getBcVersion());
                     devInfosInformation.putString("os",infoResponse.getOsVersion());
                     devInfosInformation.putString("sdk",infoResponse.getSdkVersion());
                     devInfosInformation.putString("serialNumber",infoResponse.getSerialNumber());
