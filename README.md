@@ -354,7 +354,7 @@ this method must be called to get information from the device.
 
 ```json
 {
-  "bCVersion": "string",
+  "bcVersion": "string",
   "os": "string",
   "sdk": "string",
   "serialNumber": "string"
