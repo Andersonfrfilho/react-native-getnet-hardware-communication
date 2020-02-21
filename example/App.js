@@ -90,7 +90,7 @@ export default function App() {
   }
   async function camera() {
     //timeout parameter for cont
-    const data = await cameraMethod({camera: 'back', timeout: 30});
+    const data = await cameraMethod({camera: 'front', timeout: 30});
     console.log(data);
   }
 

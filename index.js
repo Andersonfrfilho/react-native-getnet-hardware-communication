@@ -10,7 +10,7 @@ const {
     printMethod,
     ledMethod,
     beeperMethod,
-    cameraBackMethod
+    cameraMethod
   }
 } = NativeModules;
 
@@ -23,5 +23,5 @@ export {
   printMethod,
   ledMethod,
   beeperMethod,
-  cameraBackMethod
+  cameraMethod
 };
