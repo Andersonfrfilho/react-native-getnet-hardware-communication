@@ -88,7 +88,7 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
                 WritableNativeMap devInfosInformation = new WritableNativeMap();
                 @Override
                 public void onInfo(InfoResponse infoResponse){
-                    devInfosInformation.putString("BcVersion",infoResponse.getBcVersion());
+                    devInfosInformation.putString("bCVersion",infoResponse.getBcVersion());
                     devInfosInformation.putString("os",infoResponse.getOsVersion());
                     devInfosInformation.putString("sdk",infoResponse.getSdkVersion());
                     devInfosInformation.putString("serialNumber",infoResponse.getSerialNumber());
@@ -98,14 +98,15 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
 
                 @Override
                 public void onError(String s){
-                    devInfosInformation.putString("error",s);
+                    devInfosInformation.putBoolean("error",true);
+                    devInfosInformation.putString("message",s);
                     promise.resolve(devInfosInformation);
                     return;
 
                 }
             });
         }catch (Exception error){
-            promise.reject(error);
+            promise.reject("error:",error.getMessage());
         }
     }
     @ReactMethod
@@ -131,6 +132,7 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
 
                     @Override
                     public void onMessage(String s) {
+                        cardConnectResponse.putBoolean("error",false);
                         cardConnectResponse.putString("message",s);
                         promise.resolve(cardConnectResponse);
                         return;
@@ -138,13 +140,14 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
 
                     @Override
                     public void onError(String s) {
-                        cardConnectResponse.putString("error",s);
+                        cardConnectResponse.putBoolean("error",true);
+                        cardConnectResponse.putString("message",s);
                         promise.resolve(cardConnectResponse);
                         return;
                     }
                 });
             }catch (Exception error){
-                promise.reject(error);
+                promise.reject("error:",error.getMessage());
                 return;
             }
         }else if(config.getString("typeCard").toLowerCase().equals("chip")){
@@ -168,6 +171,7 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
 
                     @Override
                     public void onMessage(String s) {
+                        cardConnectResponse.putBoolean("error",false);
                         cardConnectResponse.putString("message",s);
                         promise.resolve(cardConnectResponse);
                         return;
@@ -175,13 +179,14 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
 
                     @Override
                     public void onError(String s) {
+                        cardConnectResponse.putBoolean("error",true);
                         cardConnectResponse.putString("error",s);
                         promise.resolve(cardConnectResponse);
                         return;
                     }
                 });
             }catch (Exception error){
-                promise.reject(error);
+                promise.reject("error:",error.getMessage());
                 return;
             }
         }else if(config.getString("typeCard").toLowerCase().equals("nfc")){
@@ -205,6 +210,7 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
 
                     @Override
                     public void onMessage(String s) {
+                        cardConnectResponse.putBoolean("error",false);
                         cardConnectResponse.putString("message",s);
                         promise.resolve(cardConnectResponse);
                         return;
@@ -212,13 +218,14 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
 
                     @Override
                     public void onError(String s) {
-                        cardConnectResponse.putString("error",s);
+                        cardConnectResponse.putBoolean("error",true);
+                        cardConnectResponse.putString("message",s);
                         promise.resolve(cardConnectResponse);
                         return;
                     }
                 });
             }catch (Exception error){
-                promise.reject(error);
+                promise.reject("error:",error.getMessage());
                 return;
             }
         }else{
@@ -241,6 +248,7 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
 
                     @Override
                     public void onMessage(String s) {
+                        cardConnectResponse.putBoolean("error",false);
                         cardConnectResponse.putString("message",s);
                         promise.resolve(cardConnectResponse);
                         return;
@@ -248,13 +256,14 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
 
                     @Override
                     public void onError(String s) {
-                        cardConnectResponse.putString("error",s);
+                        cardConnectResponse.putBoolean("error",true);
+                        cardConnectResponse.putString("message",s);
                         promise.resolve(cardConnectResponse);
                         return;
                     }
                 });
             }catch (Exception error){
-                promise.reject(error);
+                promise.reject("error:",error.getMessage());
                 return;
             }
         }
@@ -269,7 +278,7 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
             return;
 
         }catch (Exception error){
-            promise.reject(error);
+            promise.reject("error:",error.getMessage());
             return;
         }
     }
@@ -343,21 +352,87 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
                     }
                 }
             }
+            PosDigital.getInstance().getPrinter().addText(AlignMode.LEFT, "\n \n \n \n");
             PosDigital.getInstance().getPrinter().print(new IPrinterCallback.Stub() {
                 @Override
                 public void onSuccess() throws RemoteException {
-                    promise.resolve("true");
+                    WritableNativeMap printResponse= new WritableNativeMap();
+                    printResponse.putBoolean("printer",true);
+                    promise.resolve(printResponse);
                     return;
                 }
 
                 @Override
                 public void onError(int i) throws RemoteException {
-                    promise.resolve("true");
-                    return;
+                    WritableNativeMap printResponse= new WritableNativeMap();
+                    switch (i) {
+                        case 2:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Impressora não iniciada");
+                            promise.resolve(printResponse);
+                            return;
+                        case 3:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Impressora superaquecida");
+                            promise.resolve(printResponse);
+                            return;
+                        case 4:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Fila de impressão muito grande");
+                            promise.resolve(printResponse);
+                            return;
+                        case 5:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Parametros incorretos");
+                            promise.resolve(printResponse);
+                            return;
+                        case 10:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Porta da impressora aberta");
+                            promise.resolve(printResponse);
+                            return;
+                        case 11:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Temperatura baixa de mais");
+                            promise.resolve(printResponse);
+                            return;
+                        case 12:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Sem bateria suficiente para impressão");
+                            promise.resolve(printResponse);
+                            return;
+                        case 13:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Motor de passo com problemas");
+                            promise.resolve(printResponse);
+                            return;
+                        case 15:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Sem bobina");
+                            promise.resolve(printResponse);
+                            return;
+                        case 16:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","bobina acabando");
+                            promise.resolve(printResponse);
+                            return;
+                        case 17:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Bobina travada");
+                            promise.resolve(printResponse);
+                            return;
+                        default:
+                            printResponse.putBoolean("printer",false);
+                            printResponse.putString("message","Erro não identificado");
+                            promise.resolve(printResponse);
+
+                            return;
+                    }
+
                 }
             });
         } catch (Exception error) {
-            promise.reject("bla"+error.getMessage());
+            promise.reject("error",error.getMessage());
             return;
         }
     }
@@ -365,6 +440,7 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
     @ReactMethod
     public void ledMethod(ReadableMap data, final Promise promise) {
         try {
+            WritableNativeMap ledResponse= new WritableNativeMap();
             if (data.getBoolean("turn")) {
                 switch (data.getString("color").toLowerCase()) {
                     case "blue":
@@ -383,7 +459,9 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
                         PosDigital.getInstance().getLed().turnOnAll();
                         break;
                 }
-                promise.resolve("Modulo de led acendeu: " + data.getString("color").toLowerCase());
+                ledResponse.putBoolean("turn",true);
+                ledResponse.putString("color",data.getString("color").toLowerCase());
+                promise.resolve(ledResponse);
                 return;
             } else {
                 switch (data.getString("color").toLowerCase()) {
@@ -403,7 +481,10 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
                         PosDigital.getInstance().getLed().turnOffAll();
                         break;
                 }
-                promise.resolve("Modulo de led apagou: " + data.getString("color").toLowerCase());
+
+                ledResponse.putBoolean("turn",false);
+                ledResponse.putString("color",data.getString("color").toLowerCase());
+                promise.resolve(ledResponse);
                 return;
             }
 
@@ -417,6 +498,7 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
     @ReactMethod
     public void beeperMethod(ReadableMap data, final Promise promise) {
         try {
+            WritableNativeMap beeperResponse= new WritableNativeMap();
             switch (data.getString("beeperMode").toLowerCase()) {
                 case "error":
                     PosDigital.getInstance().getBeeper().error();
@@ -431,47 +513,90 @@ public class GetnetHardwareCommunicationModule extends ReactContextBaseJavaModul
                     PosDigital.getInstance().getBeeper().success();
                     break;
             }
-            promise.resolve("Beeper: " + data.getString("beeperMode").toLowerCase());
+            beeperResponse.putBoolean("beeper",true);
+            beeperResponse.putString("type",data.getString("beeperMode").toLowerCase());
+            promise.resolve(beeperResponse);
             return;
         } catch (Exception e) {
-            promise.resolve("error : " + data.getString("beeperMode").toLowerCase());
+            promise.reject("error : " + data.getString("beeperMode").toLowerCase(),e.getMessage());
             return;
         }
     }
     @ReactMethod
-    public void cameraBackMethod(final Promise promise) {
-
+    public void cameraMethod(ReadableMap data,final Promise promise) {
         try {
-            int timeout = 30;
-            PosDigital.getInstance().getCamera().readBack(timeout, new ICameraCallback.Stub() {
-                @Override
-                public void onSuccess(String s) throws RemoteException {
-                    promise.resolve(s);
-                    return;
-                }
+            if(data.getString("camera").toLowerCase().equals("front")){
+                PosDigital.getInstance().getCamera().readFront(data.getInt("timeout"), new ICameraCallback.Stub() {
+                    WritableNativeMap cameraResponse= new WritableNativeMap();
+                    @Override
+                    public void onSuccess(String s) throws RemoteException {
+                        cameraResponse.putString("code",s);
+                        promise.resolve(s);
+                        return;
+                    }
 
-                @Override
-                public void onTimeout() throws RemoteException {
-                    promise.resolve("Tempo ultrapassado");
-                    return;
-                }
+                    @Override
+                    public void onTimeout() throws RemoteException {
+                        cameraResponse.putBoolean("error",true);
+                        cameraResponse.putString("message","time exceeded");
+                        promise.resolve(cameraResponse);
+                        return;
+                    }
 
-                @Override
-                public void onCancel() throws RemoteException {
-                    promise.resolve("Opção Cancelada");
-                    return;
-                }
+                    @Override
+                    public void onCancel() throws RemoteException {
+                        cameraResponse.putBoolean("error",true);
+                        cameraResponse.putString("message","option canceled");
+                        promise.resolve(cameraResponse);
+                        return;
+                    }
 
-                @Override
-                public void onError(String s) throws RemoteException {
-                    promise.resolve("Operacao com erro:" + s);
-                    return;
-                }
-            });
-            promise.resolve("Método da camera ativado");
-            return;
+                    @Override
+                    public void onError(String s) throws RemoteException {
+                        cameraResponse.putBoolean("error",true);
+                        cameraResponse.putString("message",s);
+                        promise.resolve(cameraResponse);
+                        return;
+                    }
+                });
+            }else{
+                PosDigital.getInstance().getCamera().readBack(data.getInt("timeout"), new ICameraCallback.Stub() {
+                    WritableNativeMap cameraResponse= new WritableNativeMap();
+                    @Override
+                    public void onSuccess(String s) throws RemoteException {
+                        cameraResponse.putString("code",s);
+                        promise.resolve(s);
+                        return;
+                    }
+
+                    @Override
+                    public void onTimeout() throws RemoteException {
+                        cameraResponse.putBoolean("error",true);
+                        cameraResponse.putString("message","time exceeded");
+                        promise.resolve(cameraResponse);
+                        return;
+                    }
+
+                    @Override
+                    public void onCancel() throws RemoteException {
+                        cameraResponse.putBoolean("error",true);
+                        cameraResponse.putString("message","option canceled");
+                        promise.resolve(cameraResponse);
+                        return;
+                    }
+
+                    @Override
+                    public void onError(String s) throws RemoteException {
+                        cameraResponse.putBoolean("error",true);
+                        cameraResponse.putString("message",s);
+                        promise.resolve(cameraResponse);
+                        return;
+                    }
+                });
+            }
+
         } catch (Exception e) {
-            promise.reject("error", "error informações da maquina");
+            promise.reject("error", e.getMessage());
             return;
         }
     }

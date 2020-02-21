@@ -1,15 +1,16 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {
-  StyleSheet,
-  Text,
-  View,
-  Button,
-  Linking,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
-import GetnetHardwareCommunication from 'react-native-getnet-hardware-communication';
-import ConfigPrint from './configPrint';
+  startingServices,
+  checkConnections,
+  devInformation,
+  cardStartConnectAntenna,
+  cardStopConnectAntenna,
+  printMethod,
+  ledMethod,
+  beeperMethod,
+  cameraBackMethod,
+} from 'react-native-getnet-hardware-communication';
 import configPrint from './configPrint';
 export default function App() {
   const [service, setService] = useState(false);
@@ -18,10 +19,10 @@ export default function App() {
   async function verifyService() {
     try {
       //Method for initialized services
-      let services = await GetnetHardwareCommunication.startingServices();
+      let services = await startingServices();
       console.log(services.services);
       //Method for initialized connections
-      let connection = await GetnetHardwareCommunication.checkConnections();
+      let connection = await checkConnections();
       console.log(connection.connection);
       setService(services.services.toString());
       setConnection(connection.connection.toString());
@@ -30,7 +31,7 @@ export default function App() {
     }
   }
   async function deviceInfo() {
-    let infos = await GetnetHardwareCommunication.devInformation();
+    let infos = await devInformation();
     console.log(infos);
     setInfo(
       `bc:${infos.BcVersion}\nOS:${infos.os}\nsdk:${infos.sdk}\nserial-number:${infos.serialNumber}`,
@@ -48,9 +49,7 @@ export default function App() {
         typeCard: 'nfc',
         timeout: 30,
       };
-      let cardConnect = await GetnetHardwareCommunication.cardStartConnectAntenna(
-        configs,
-      );
+      let cardConnect = await cardStartConnectAntenna(configs);
       console.log(cardConnect);
     } catch (error) {
       console.log(error);
@@ -58,16 +57,16 @@ export default function App() {
   }
   async function stopConnectCard() {
     try {
-      await GetnetHardwareCommunication.cardStopConnectAntenna();
+      await cardStopConnectAntenna();
     } catch (error) {
       console.log(error);
     }
   }
   async function printer() {
-    const data = await GetnetHardwareCommunication.printMethod(configPrint);
+    const data = await printMethod(configPrint);
   }
   async function ledOn() {
-    const data = await GetnetHardwareCommunication.ledMethod({
+    const data = await ledMethod({
       //turn: true | false
       turn: true,
       //color blue | green | red | yellow | all
@@ -75,7 +74,7 @@ export default function App() {
     });
   }
   async function ledOff() {
-    const data = await GetnetHardwareCommunication.ledMethod({
+    const data = await ledMethod({
       //turn: true | false
       turn: false,
       //color blue | green | red | yellow | all
@@ -83,55 +82,18 @@ export default function App() {
     });
   }
   async function beeper() {
-    const data = await GetnetHardwareCommunication.beeperMethod({
+    //beeperMode: error|digit|nfc|success
+    //default success
+    const data = await beeperMethod({
       beeperMode: 'success',
     });
   }
   async function camera() {
-    const data = await GetnetHardwareCommunication.cameraBackMethod();
+    //timeout parameter for cont
+    const data = await cameraBackMethod(30);
     console.log(data);
   }
-  // async function printView() {
-  //   const data = await GetnetHardwareCommunication.printView({
-  //     textPrint: [
-  //       {
-  //         type:'text',
-  //         text: 'Anderson',
-  //         position: 'bitmap',
-  //         fontSize: 'small',
-  //         setFontGray: 5,
-  //       },
-  //       {
-  //         text: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCE56789',
-  //         position: 'center',
-  //         setFontGray: 5,
-  //         fontSize: 'small',
-  //       },
-  //       {
-  //         text:
-  //           'ABCDEFGHIJKLMNOPQRSTUVWXYZ012349ABCEGHIJKLMNOPQRSTUVWXYZ123456789',
-  //         position: 'center',
-  //         setFontGray: 5,
-  //         fontSize: 'small',
-  //       },
-  //       {
-  //         text: 'ABCDEFGHIJKLMNOPYZ123456789',
-  //         position: 'center',
-  //         setFontGray: 5,
-  //         fontSize: 'small',
-  //       },
-  //       {
-  //         text: 'ABCDEFGHIJKLMNOPQRSTUABCEGHIJKLMNOPQRSTUVWXYZ123456789',
-  //         position: 'center',
-  //         setFontGray: 5,
-  //         fontSize: 'small',
-  //       },
-  //     ],
-  //   });
-  //   for (let i = 0; i < data.length; i++) {
-  //     console.log(data[i]);
-  //   }
-  // }
+
   return (
     <View style={styles.container}>
       <View>

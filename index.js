@@ -1,5 +1,27 @@
-import { NativeModules } from 'react-native';
+import { NativeModules } from "react-native";
 
-const { GetnetHardwareCommunication } = NativeModules;
+const {
+  GetnetHardwareCommunication: {
+    startingServices,
+    checkConnections,
+    devInformation,
+    cardStartConnectAntenna,
+    cardStopConnectAntenna,
+    printMethod,
+    ledMethod,
+    beeperMethod,
+    cameraBackMethod
+  }
+} = NativeModules;
 
-export default GetnetHardwareCommunication;
+export {
+  startingServices,
+  checkConnections,
+  devInformation,
+  cardStartConnectAntenna,
+  cardStopConnectAntenna,
+  printMethod,
+  ledMethod,
+  beeperMethod,
+  cameraBackMethod
+};

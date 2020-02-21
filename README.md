@@ -1,14 +1,26 @@
-# react-native-getnet-hardware-communication
+# `react-native-getnet-hardware-communication`
+
+[![npm](https://img.shields.io/npm/v/react-native-getnet-hardware-communication)](https://www.npmjs.com/package/react-native-getnet-hardware-communication.svg)
+![Supports Android](https://img.shields.io/badge/platforms-android-lightgrey.svg)
+![MIT License](https://img.shields.io/npm/l/react-native-getnet-hardware-communication.svg)
+
+[![npm total downloads](https://img.shields.io/npm/dt/react-native-getnet-hardware-communication.svg)](https://img.shields.io/npm/dt/react-native-getnet-hardware-communication.svg)
+[![npm monthly downloads](https://img.shields.io/npm/dm/react-native-getnet-hardware-communication.svg)](https://img.shields.io/npm/dm/react-native-getnet-hardware-communication.svg)
+[![npm weekly downloads](https://img.shields.io/npm/dw/react-native-getnet-hardware-communication.svg)](https://img.shields.io/npm/dw/react-native-getnet-hardware-communication.svg)<br>
+
+Device Information for [React Native](https://github.com/facebook/react-native).<br>
 
 ## Getting started
 
 `$ npm install react-native-getnet-hardware-communication --save`
 
-### Mostly automatic installation
+<br>or<br>
 
-`$ react-native link react-native-getnet-hardware-communication`
+`$ yarn add react-native-getnet-hardware-communication`
 
-#### Android
+#### Only Android
+
+<img src="./android.png" width="48" height="48"/>
 
 #### Includes and modify archives
 
@@ -22,16 +34,6 @@
         ...
         ...
 		},...
-```
-
-2. in android/app/src/main/androidManifest.xml add in
-
-```javascript
-<manifest xmlns:android="..." package="...">
-  ...
-  <uses-permission android:name="com.getnet.posdigital.service.POSDIGITAL" />
-  ...
-</manifest>
 ```
 
 3. finish
@@ -62,134 +64,667 @@
 ## Usage
 
 ```javascript
-import GetnetHardwareCommunication from "react-native-getnet-hardware-communication";
-//example
-//service of Initialized hardware comunicaction
-//return True or False
-const myFunction = async () => {
-  ///////////////////////////////////
-  //responseMethod;
-  const responseService = await checkServiceMethod();
-  ///////////////////////////////////
-  //print view
-  async function print() {
-    const data = await GetnetHardwareCommunication.printView({
-      textPrint: [
-        {
-          text: `Anderson`,
-          position: "bitmap",
-          fontSize: "small",
-          setFontGray: 5
-        },
-        {
-          text: `ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCE56789`,
-          position: "center",
-          setFontGray: 5,
-          fontSize: "small"
-        },
-        {
-          text: `ABCDEFGHIJKLMNOPQRSTUVWXYZ012349ABCEGHIJKLMNOPQRSTUVWXYZ123456789`,
-          position: "center",
-          setFontGray: 5,
-          fontSize: "small"
-        },
-        {
-          text: `ABCDEFGHIJKLMNOPYZ123456789`,
-          position: "center",
-          setFontGray: 5,
-          fontSize: "small"
-        },
-        {
-          text: `ABCDEFGHIJKLMNOPQRSTUABCEGHIJKLMNOPQRSTUVWXYZ123456789`,
-          position: "center",
-          setFontGray: 5,
-          fontSize: "small"
-        }
-      ]
-    });
-    console.tron.log(data);
+import React, { useState } from "react";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  startingServices,
+  checkConnections,
+  devInformation,
+  cardStartConnectAntenna,
+  cardStopConnectAntenna,
+  printMethod,
+  ledMethod,
+  beeperMethod,
+  cameraMethod
+} from "react-native-getnet-hardware-communication";
+import configPrint from "./configPrint";
+export default function App() {
+  const [service, setService] = useState(false);
+  const [connection, setConnection] = useState(false);
+  const [info, setInfo] = useState("");
+  async function verifyService() {
+    try {
+      //Method for initialized services
+      let services = await startingServices();
+      console.log(services.services);
+      //Method for initialized connections
+      let connection = await checkConnections();
+      console.log(connection.connection);
+      setService(services.services.toString());
+      setConnection(connection.connection.toString());
+    } catch (error) {
+      console.log(error);
+    }
   }
-  //printMethod;
-  const responsePrint = await printMethod({
-    // 1 - 5;
-    setFontGray: 5,
-    //choice a size
-    fontSize: "small" || "medium" || "large",
-    //using text(small<48 || medium && large << 36) and position
-    //Bitmap width: 378 pixels
-    textPrint: [
-      {
-        text: "text write or path_bitmap",
-        position: "bitmap-1" || "left" || "center" || "rigth"
-      },
-      {
-        text: "text write or path_bitmap",
-        position: "bitmap-2" || "left" || "center" || "rigth"
-      },
-      {
-        text: "text write or path_bitmap",
-        position: "bitmap-3" || "left" || "center" || "rigth"
-      },
-      //Example BITMAP -> bitmap-0 (left), bitmap-1 (central), bitmap-2 (rigth);
-      {
-        text: "/../sourcefile.bitmap",
-        position: "bitmap-0" || "bitmap-1" || "bitmap-2"
-      },
-      //Example Text
-      { text: "text implementation", position: "center" }
-    ]
-  });
-  ///////////////////////////////////
-  //ledMethod;
-  const responseLed = await ledMethod({
-    turn: true || false,
-    color: "blue" || "green" || "red" || "yellow" || "all"
-  });
-  ///////////////////////////////////
-  //beeperMethod;
-  const responseBeeper = await beeperMethod({
-    beeperMode: "error" || "digit" || "nfc" || "success"
-  });
-  ///////////////////////////////////
-  //cameraBackMethod;
-  const responseCamera = await cameraBackMethod();
-  //////////////////////////////////
-  //information Method
-  const responseInfo = await infoMethod();
-};
+  async function deviceInfo() {
+    let infos = await devInformation();
+    console.log(infos);
+    setInfo(
+      `bc:${infos.BcVersion}\nOS:${infos.os}\nsdk:${infos.sdk}\nserial-number:${infos.serialNumber}`
+    );
+  }
+  async function connectCard() {
+    try {
+      // Method for initialized service card
+      // configs obj
+      // configs = {
+      //   string - typeCard:'magnetic'||'chip'||'nfc',//type of card in find
+      //   int - timeout:30,//value for timout wait.
+      // }
+      const configs = {
+        typeCard: "nfc",
+        timeout: 30
+      };
+      let cardConnect = await cardStartConnectAntenna(configs);
+      console.log(cardConnect);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async function stopConnectCard() {
+    try {
+      await cardStopConnectAntenna();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async function printer() {
+    const data = await printMethod(configPrint);
+  }
+  async function ledOn() {
+    const data = await ledMethod({
+      //turn: true | false
+      turn: true,
+      //color blue | green | red | yellow | all
+      color: "all"
+    });
+  }
+  async function ledOff() {
+    const data = await ledMethod({
+      //turn: true | false
+      turn: false,
+      //color blue | green | red | yellow | all
+      color: "all"
+    });
+  }
+  async function beeper() {
+    //beeperMode: error|digit|nfc|success
+    //default success
+    const data = await beeperMethod({
+      beeperMode: "success"
+    });
+  }
+  async function camera() {
+    //timeout parameter for cont
+    const data = await cameraBackMethod(30);
+    console.log(data);
+  }
 
-//response method printer success
-("ok");
-//response method printer error
-("Impressora não iniciada");
+  return (
+    <View style={styles.container}>
+      <View>
+        <Text>Service: {service ? "work" : "not work"}</Text>
+      </View>
+      <View>
+        <Text>Connection: {connection ? "connect" : "not connect"}</Text>
+      </View>
+      {info ? (
+        <View>
+          <Text>Infos: {"information"}</Text>
+        </View>
+      ) : null}
+      <TouchableOpacity style={styles.button} onPress={() => verifyService()}>
+        <Text style={styles.textButton}>Service / Connection</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => deviceInfo()}
+      >
+        <Text style={styles.textButton}>Device Information</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => connectCard()}
+      >
+        <Text style={styles.textButton}>Card Connection Start</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => stopConnectCard()}
+      >
+        <Text style={styles.textButton}>Card Connection Stop</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => printer()}
+      >
+        <Text style={styles.textButton}>Printer</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => ledOn()}
+      >
+        <Text style={styles.textButton}>On Led</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => ledOff()}
+      >
+        <Text style={styles.textButton}>Off Led</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => beeper()}
+      >
+        <Text style={styles.textButton}>Bepper</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        disabled={!(service && connection)}
+        onPress={() => camera()}
+      >
+        <Text style={styles.textButton}>Camera</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
 
-("Impressora superaquecida");
-
-("Fila de impressão muito grande");
-
-("Parametros incorretos");
-
-("Porta da impressora aberta");
-
-("Temperatura baixa de mais");
-
-("Sem bateria suficiente para impressão");
-
-("Motor de passo com problemas");
-
-("Sem bobina");
-
-("bobina acabando");
-
-("Bobina travada");
-////////////////////////////////
-//Led Method
-
-///////////////////////////////////
-//beeperMethod
-
-GetnetHardwareCommunication;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5FCFF"
+  },
+  welcome: {
+    fontSize: 20,
+    textAlign: "center",
+    margin: 10
+  },
+  instructions: {
+    textAlign: "center",
+    color: "#333333",
+    marginBottom: 5
+  },
+  button: {
+    backgroundColor: "#451234",
+    width: "70%",
+    height: 40,
+    marginBottom: 10,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  textButton: {
+    fontSize: 14,
+    color: "#f7f7f7"
+  }
+});
 ```
+
+# Methods
+
+### Summary
+
+- [`startingServices`](#startingServices)
+- [`checkConnections`](#checkConnections)
+- [`devInformation`](#devInformation)
+- [`cardStartConnectAntenna`](#cardStartConnectAntenna)
+- [`cardStartConnectAntenna`](#cardStartConnectAntenna)
+- [`cardStopConnectAntenna`](#cardStopConnectAntenna)
+- [`printMethod`](#printMethod)
+- [`ledMethod`](#ledMethod)
+- [`beeperMethod`](#beeperMethod)
+- [`cameraBackMethod`](#cameraBackMethod)
+
+---
+
+### Details
+
+#### `startingServices()`
+
+```jsx
+import { startingServices } from "react-native-getnet-hardware-communication";
+async function startedServices() {
+  const response = await startingServices();
+  console.log(response);
+}
+```
+
+##### `Info`
+
+this method must be called before starting any service with APOS to start hardware services.
+
+#### `response`
+
+```json
+{
+  "service": "boolean"
+}
+```
+
+---
+
+#### `checkConnections()`
+
+```jsx
+import { checkConnections } from "react-native-getnet-hardware-communication";
+async function checkedTheConnection() {
+  const response = await checkConnections();
+  console.log(response);
+}
+```
+
+##### <b>Info</b>
+
+this method must be called when you want to check the connection to the services.
+
+#### `response`
+
+```json
+{
+  "connection": "boolean"
+}
+```
+
+---
+
+#### `devInformation()`
+
+```jsx
+import { devInformation } from "react-native-getnet-hardware-communication";
+async function getInformation() {
+  const response = await devInformation();
+  console.log(response);
+}
+```
+
+##### `Info`
+
+this method must be called to get information from the device.
+
+#### `response`
+
+```json
+{
+  "bCVersion": "string",
+  "os": "string",
+  "sdk": "string",
+  "serialNumber": "string"
+}
+```
+
+<br>or case error</br>
+
+```json
+{
+  "error": "boolean",
+  "message": "string"
+}
+```
+
+---
+
+#### `cardStartConnectAntenna()`
+
+```jsx
+import { cardStartConnectAntenna } from "react-native-getnet-hardware-communication";
+async function connectAntenaOn() {
+  const response = await cardStartConnectAntenna({
+    typeCard: "magnetic",
+    timeout: 30
+  });
+  console.log(response);
+}
+```
+
+##### `Info`
+
+this method should be called active the card antenna can be by magnetic cards, Chip's and NFC.
+
+**Parameters:**
+
+| Name     | Type    | Values                         | Required | Description                                                                     |
+| -------- | ------- | ------------------------------ | -------- | ------------------------------------------------------------------------------- |
+| typeCard | string  | `magnetic`, `chip`,`nfc`,`all` | Yes      | card type.                                                                      |
+| timeout  | integer | 0 > <b>&#8734;</b>             | Yes      | number of seconds to wait the <br> antenna will be on waiting for the card</br> |
+
+#### `response`
+
+```json
+{
+  "typeCard": "string",
+  "numberCard": "int",
+  "dataExpired": "string",
+  "pan": "string",
+  "track1": "string",
+  "track2": "string",
+  "track3": "string",
+  "type": "string"
+}
+```
+
+<br>or case error or message</br>
+
+```json
+{
+  "error": "boolean",
+  "message": "string"
+}
+```
+
+---
+
+#### `cardStopConnectAntenna()`
+
+```jsx
+import { cardStopConnectAntenna } from "react-native-getnet-hardware-communication";
+async function connectAntenaOff() {
+  const response = await cardStopConnectAntenna();
+  console.log(response);
+}
+```
+
+##### `Info`
+
+this method turns off the card search antenna
+
+#### `response`
+
+```json
+{
+  "stop": "boolean"
+}
+```
+
+<br>or case error or message</br>
+
+```json
+{
+  "error": "string"
+}
+```
+
+---
+
+#### `printMethod()`
+
+```jsx
+import { printMethod } from "react-native-getnet-hardware-communication";
+async function print() {
+  const response = await printMethod([
+  {
+    type: 'image',
+    value:'base64Image with data:image/jpeg;base64, or not',
+    align: 'left',
+    weight: 3,
+    fontSize: null,
+  },
+  {
+    type: 'image',
+    value:'base64Image with data:image/jpeg;base64, or not',
+    align: 'right',
+    weight: 3,
+    fontSize: null,
+  },
+  {
+    type: 'image',
+    value:'base64Image with data:image/jpeg;base64, or not',
+    align: 'center',
+    weight: 3,
+    fontSize: null,
+  },
+  {
+    type: 'barcode',
+    value: '12345678901234567890',
+    align: 'left',
+    weight: 3,
+    fontSize: null,
+  },
+  {
+    type: 'barcode',
+    value: '123456789012345678901',
+    align: 'right',
+    weight: 3,
+    fontSize: null,
+  },
+  {
+    type: 'barcode',
+    value: '1234567890123456789012',
+    align: 'center',
+    weight: 3,
+    fontSize: null,
+  },
+  {
+    type: 'barcode',
+    value: '12345678901234567890123',
+    align: 'left',
+    weight: 3,
+    fontSize: null,
+  },
+  {
+    type: 'barcode',
+    value: '123456789012345678901234',
+    align: 'right',
+    weight: 3,
+    fontSize: null,
+  },
+  {
+    type: 'qrcode',
+    value: 'www.google.com',
+    align: 'left',
+    weight: 3,
+    fontSize: null,
+  },
+  {
+    type: 'qrcode',
+    value: 'www.google.com',
+    align: 'right',
+    weight: 3,
+    fontSize: null,
+  },
+
+  {
+    type: 'qrcode',
+    value: 'www.google.com',
+    align: 'left',
+    weight: 3,
+    fontSize: null,
+  },
+  {
+    type: 'text',
+    value: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    align: 'left',
+    weight: 1,
+    fontSize: 'small',
+  },
+  {
+    type: 'text',
+    value: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    align: 'right',
+    weight: 1,
+    fontSize: 'medium',
+  },
+  {
+    type: 'text',
+    value: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    align: 'center',
+    weight: 1,
+    fontSize: 'large',
+  },
+];);
+  console.log(response);
+}
+```
+
+##### `Info`
+
+this method print whatever is in an array with the right parameters.
+
+**Parameters:**
+<br>**_type:Array of Objects_**</br>
+| Name | Type | Values | Required | default | Description |
+| -------- | ------- | ------------------------------ | -------- | ---- |------------------------------------------------------------------------------- |
+| type | string | `image`, `barcode`,`qrcode`,`text` | Yes | `text` | type of element to print. |
+| value | string | `Image in base64`,`string`,`string`,`string` | Yes | not value default | values ​​that will be printed |
+| align | string | `center`,`left`,`right` | Yes | `center` | print alignment |
+| weight | integer | 1 <= 5 | Yes | not value default |weight of ink used for printing |
+| fontSize | string | `small`,`medium`,`large` | Yes | `medium` |font size used: <br>chacarectes limits: small (48), medium (32) and large (32) |
+
+#### `response`
+
+```json
+{
+  "printer": "bollean"
+}
+```
+
+<br>or case error or message</br>
+
+```json
+{
+  "printer": "boolean",
+  "message": "string"
+}
+```
+
+---
+
+#### `ledMethod()`
+
+```jsx
+import { ledMethod } from "react-native-getnet-hardware-communication";
+async function print() {
+  const response = await ledMethod({
+    turn: true,
+    color: "blue"
+  });
+  console.log(response);
+}
+```
+
+##### `Info`
+
+this method turn the leds on or off.
+
+**Parameters:**
+<br>**type:Object**</br>
+| Name | Type | Values | Required | default | Description |
+| -------- | ------- | ------------------------------ | -------- | ---- |------------------------------------------------------------------------------- |
+| turn | boolean | boolean | Yes | `false` | turn on or off a specified led. |
+| value | string | `blue`,`green`,`red`,`yellow`,`all` | Yes | `all` | specify the color |
+
+#### `response`
+
+```json
+{
+  "turn": "bollean",
+  "color": "string"
+}
+```
+
+<br>or case error or message</br>
+
+```
+"message string"
+```
+
+---
+
+#### `beeperMethod()`
+
+```jsx
+import { beeperMethod } from "react-native-getnet-hardware-communication";
+async function print() {
+  const response = await beeperMethod({
+    beeperMode: "success"
+  });
+  console.log(response);
+}
+```
+
+##### `Info`
+
+this method to turn on device sound.
+
+**Parameters:**
+<br>**type:Object**</br>
+| Name | Type | Values | Required | default | Description |
+| -------- | ------- | ------------------------------ | -------- | ---- |------------------------------------------------------------------------------- |
+| beeperMode | string | `error`,`digit`,`nfc`,`success` | Yes | `success` | type of element to print. |
+
+#### `response`
+
+```json
+{
+  "beeper": "bollean",
+  "type": "string"
+}
+```
+
+<br>or case error or message</br>
+
+```
+"message string"
+```
+
+---
+
+#### `cameraMethod()`
+
+```jsx
+import { cameraMethod } from "react-native-getnet-hardware-communication";
+async function print() {
+  const response = await cameraMethod({
+    camera: "back",
+    timeout: "success"
+  });
+  console.log(response);
+}
+```
+
+##### `Info`
+
+this method to turn on device sound.
+
+**Parameters:**
+<br>**type:Object**</br>
+| Name | Type | Values | Required | default | Description |
+| -------- | ------- | ------------------------------ | -------- | ---- |------------------------------------------------------------------------------- |
+| camera | string | `back`,`front` | Yes | `back` | side of the camera. |
+| timeout | integer | 0 > <b>&#8734;</b> | Yes | not value default | side of the camera. |
+
+#### `response`
+
+```json
+{
+  "code": "string"
+}
+```
+
+<br>or case error or message</br>
+
+```json
+{
+  "error": "boolean",
+  "message": "string"
+}
+```
+
+---
+
+#### `printView()`
+
+coming soon...
+
+aiming to help developers who do not have the machines the method to view the print is under development.
 
 This module is designed for reac-native developers to have no difficulty developing applications for new APOS-A8 card machines and the like ^^. Thanks.
 
