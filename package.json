@@ -1,6 +1,6 @@
 {
   "name": "react-native-getnet-hardware-communication",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "hardware communication module from getnet APOS A80",
   "main": "index.js",
   "scripts": {
