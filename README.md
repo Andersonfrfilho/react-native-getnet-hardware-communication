@@ -12,9 +12,9 @@ Device Information for [React Native](https://github.com/facebook/react-native).
 
 ## Getting started
 
-`$ npm install react-native-getnet-hardware-communication --save`
+`$ npm install react-native-getnet-hardware-communication --save`<br>
 
-<br>or<br>
+or
 
 `$ yarn add react-native-getnet-hardware-communication`
 
@@ -156,7 +156,7 @@ export default function App() {
   }
   async function camera() {
     //timeout parameter for cont
-    const data = await cameraBackMethod(30);
+    const data = await cameraMethod({ camera: "back", timeout: 30 });
     console.log(data);
   }
 
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
 - [`printMethod`](#printMethod)
 - [`ledMethod`](#ledMethod)
 - [`beeperMethod`](#beeperMethod)
-- [`cameraBackMethod`](#cameraBackMethod)
+- [`cameraMethod`](#cameraMethod)
 
 ---
 
@@ -322,7 +322,7 @@ async function checkedTheConnection() {
 }
 ```
 
-##### <b>Info</b>
+##### `Info`
 
 this method must be called when you want to check the connection to the services.
 
@@ -569,11 +569,11 @@ async function print() {
 this method print whatever is in an array with the right parameters.
 
 **Parameters:**
-<br>**_type:Array of Objects_**</br>
+<br>**_type: Array of Objects_**</br>
 | Name | Type | Values | Required | default | Description |
 | -------- | ------- | ------------------------------ | -------- | ---- |------------------------------------------------------------------------------- |
 | type | string | `image`, `barcode`,`qrcode`,`text` | Yes | `text` | type of element to print. |
-| value | string | `Image in base64`,`string`,`string`,`string` | Yes | not value default | values ​​that will be printed |
+| value | string | `Image in base64`,<br>`string`,`string`,`string` | Yes | not value default | values ​​that will be printed |
 | align | string | `center`,`left`,`right` | Yes | `center` | print alignment |
 | weight | integer | 1 <= 5 | Yes | not value default |weight of ink used for printing |
 | fontSize | string | `small`,`medium`,`large` | Yes | `medium` |font size used: <br>chacarectes limits: small (48), medium (32) and large (32) |

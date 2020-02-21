@@ -1,8 +1,7 @@
 {
   "name": "react-native-getnet-hardware-communication",
-  "title": "React Native Getnet Hardware Communication",
-  "version": "0.0.16",
-  "description": "TODO",
+  "version": "1.0.0",
+  "description": "hardware communication module from getnet APOS A80",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

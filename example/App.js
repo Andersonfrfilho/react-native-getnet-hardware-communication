@@ -9,7 +9,7 @@ import {
   printMethod,
   ledMethod,
   beeperMethod,
-  cameraBackMethod,
+  cameraMethod,
 } from 'react-native-getnet-hardware-communication';
 import configPrint from './configPrint';
 export default function App() {
@@ -90,7 +90,7 @@ export default function App() {
   }
   async function camera() {
     //timeout parameter for cont
-    const data = await cameraBackMethod(30);
+    const data = await cameraMethod({camera: 'back', timeout: 30});
     console.log(data);
   }
 
